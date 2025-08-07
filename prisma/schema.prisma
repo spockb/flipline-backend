@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  // Core identity
+  id             Int      @id @default(autoincrement())
+  title          String
+
+  // Location
+  address        String
+  city           String
+  state          String
+
+  // Physical attributes
+  yearBuilt      Int
+  squareFootage  Int
+  lotSize        Float
+  bedrooms       Int
+  bathrooms      Float
+
+  // Financials
+  cost           Int
+  valuedAt       Int
+
+  // Description/media
+  bio            String
+  images         String[]
+
+  // Metadata
+  createdAt      DateTime @default(now())
+}
+

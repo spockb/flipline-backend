@@ -14,4 +14,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  const propertyId = parseInt(req.params.id);
+  try {
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+    });
+    if (!property) return res.status(404).json({ error: "Not found" });
+
+    res.json(property);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 export default router;

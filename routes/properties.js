@@ -14,10 +14,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-/**
- * Convert raw form strings to correct JS types.
- * Do this ONCE at the API boundary so your DB layer is clean.
- */
 function coercePayload(body) {
   // Destructure with defaults to avoid undefined crashes
   const {
@@ -53,10 +49,6 @@ function coercePayload(body) {
   };
 }
 
-/**
- * Minimal validation. Don’t get clever; just ensure core fields are present.
- * Return a list of human-readable errors.
- */
 function validatePayload(data) {
   const errors = [];
 
@@ -126,10 +118,12 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const propertyId = parseInt(req.params.id);
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id))
+    return res.status(400).json({ error: "Invalid ID" });
   try {
     const property = await prisma.property.findUnique({
-      where: { id: propertyId },
+      where: { id },
     });
     if (!property) return res.status(404).json({ error: "Not found" });
 
@@ -137,6 +131,24 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id))
+    return res.status(404).json({ error: "Invalid ID" });
+
+  try {
+    const deletedProperty = await prisma.property.delete({ where: { id } });
+    res.json({ message: "Property deleted", property: deletedProperty });
+  } catch (err) {
+    console.log(err);
+    if (err.code === "P2025") {
+      res.status(404).json({ error: "Not found" });
+    } else {
+      res.status(500).json({ error: "Server error" });
+    }
   }
 });
 

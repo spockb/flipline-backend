@@ -85,6 +85,23 @@ function validatePayload(data) {
   return errors;
 }
 
+router.get("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id))
+    return res.status(400).json({ error: "Invalid ID" });
+  try {
+    const property = await prisma.property.findUnique({
+      where: { id },
+    });
+    if (!property) return res.status(404).json({ error: "Not found" });
+
+    res.json(property);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.post("/", async (req, res) => {
   const data = coercePayload(req.body);
   const errors = validatePayload(data);
@@ -112,25 +129,45 @@ router.post("/", async (req, res) => {
     return res.status(201).json(created);
   } catch (err) {
     console.error("Create failed:", err.code, err.message, err.meta);
-    // TEMP: return the message so you can see it from curl
     return res.status(500).json({ error: err.message });
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id))
     return res.status(400).json({ error: "Invalid ID" });
-  try {
-    const property = await prisma.property.findUnique({
-      where: { id },
-    });
-    if (!property) return res.status(404).json({ error: "Not found" });
 
-    res.json(property);
+  const data = coercePayload(req.body);
+  const errors = validatePayload(data);
+  if (errors.length) return res.status(400).json({ errors });
+
+  try {
+    const updatedProperty = await prisma.property.update({
+      where: { id },
+      data: {
+        title: data.title,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        yearBuilt: data.yearBuilt,
+        squareFootage: data.squareFootage,
+        lotSize: data.lotSize,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        cost: data.cost,
+        valuedAt: data.valuedAt,
+        bio: data.bio,
+        images: data.images,
+      },
+    });
+
+    return res.status(200).json(updatedProperty);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    if (err.code === "P2025")
+      return res.status(404).json({ error: "Property not found" });
+    console.log("Update failed:", err.code, err.message, err.meta);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 

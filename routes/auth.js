@@ -56,3 +56,5 @@ router.post("/logout", (_req, res) => {
   res.clearCookie(COOKIE_NAME, { path: "/" });
   return res.json({ ok: true });
 });
+
+export default router;

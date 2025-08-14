@@ -7,7 +7,6 @@ import propertyRoutes from "./routes/properties.js";
 
 dotenv.config();
 const app = express();
-const PORT = 5000;
 const ORIGIN = "http://127.0.0.1:5173";
 
 app.use(express.json());
@@ -25,5 +24,5 @@ app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
 
 app.listen(5000, "127.0.0.1", () =>
-  console.log("API on http://127.0.0.1:5000")
+  console.log(`API running on: 127.0.0.1:5000`)
 );

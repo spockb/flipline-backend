@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 const properties = [
   {
-    id: 1,
     title: "Modern Townhome",
     address: "1247 Oak Valley Drive",
     city: "West Hollywood",
@@ -19,7 +19,6 @@ const properties = [
     images: ["/images/1/exterior.webp"],
   },
   {
-    id: 2,
     title: "Solid Brick Ranch",
     address: "892 Maple Street",
     city: "Glendale",
@@ -35,7 +34,6 @@ const properties = [
     images: ["/images/2/exterior.webp"],
   },
   {
-    id: 3,
     title: "Luxury New Construction",
     address: "3456 Willow Creek Lane",
     city: "Beverly Hills",
@@ -51,7 +49,6 @@ const properties = [
     images: ["/images/3/exterior.webp"],
   },
   {
-    id: 4,
     title: "Affordable Starter Investment",
     address: "567 Pine Ridge Court",
     city: "Inglewood",
@@ -67,7 +64,6 @@ const properties = [
     images: ["/images/4/exterior.webp"],
   },
   {
-    id: 5,
     title: "Two-Story Colonial",
     address: "2134 Sunset Boulevard",
     city: "Echo Park",
@@ -83,7 +79,6 @@ const properties = [
     images: ["/images/5/exterior.webp"],
   },
   {
-    id: 6,
     title: "Classic Ranch",
     address: "789 Cedar Park Avenue",
     city: "Van Nuys",
@@ -99,7 +94,6 @@ const properties = [
     images: ["/images/6/exterior.webp"],
   },
   {
-    id: 7,
     title: "Contemporary Suburban Home",
     address: "1523 Birch Hill Drive",
     city: "Burbank",
@@ -115,7 +109,6 @@ const properties = [
     images: ["/images/7/exterior.webp"],
   },
   {
-    id: 8,
     title: "Mid-Century Modern",
     address: "4421 Elm Street",
     city: "Silver Lake",
@@ -131,7 +124,6 @@ const properties = [
     images: ["/images/8/exterior.webp"],
   },
   {
-    id: 9,
     title: "Energy-Efficient Smart Home",
     address: "986 Magnolia Circle",
     city: "Pasadena",
@@ -147,7 +139,6 @@ const properties = [
     images: ["/images/9/exterior.webp"],
   },
   {
-    id: 10,
     title: "Spacious Two-Story",
     address: "1667 Hickory Lane",
     city: "Studio City",
@@ -163,7 +154,6 @@ const properties = [
     images: ["/images/10/exterior.webp"],
   },
   {
-    id: 11,
     title: "New Construction in Development",
     address: "3301 Dogwood Trail",
     city: "Manhattan Beach",
@@ -179,7 +169,6 @@ const properties = [
     images: ["/images/11/exterior.webp"],
   },
   {
-    id: 12,
     title: "Updated Investment Property",
     address: "555 Poplar Street",
     city: "North Hollywood",
@@ -198,13 +187,38 @@ const properties = [
 
 async function main() {
   console.log("Seeding database...");
-  for (const property of properties) {
-    await prisma.property.upsert({
-      where: { id: property.id },
-      update: {},
-      create: property,
+  const adminHash = await bcrypt.hash("admin123", 10);
+  const memberHash = await bcrypt.hash("viewer123", 10);
+
+  await prisma.user.upsert({
+    where: { email: "admin@example.com" },
+    update: {},
+    create: {
+      email: "admin@example.com",
+      passwordHash: adminHash,
+      role: "ADMIN",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "member@example.com" },
+    update: {},
+    create: {
+      email: "member@example.com",
+      passwordHash: memberHash,
+      role: "MEMBER",
+    },
+  });
+  console.log("Seeded admin and member users");
+
+  if (properties.length) {
+    await prisma.property.createMany({
+      data: properties, // NO id fields
+      skipDuplicates: true, // avoids unique collisions if rerun
     });
+    console.log("Seeded properties");
   }
+
   console.log("Seeding complete.");
 }
 

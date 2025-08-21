@@ -17,7 +17,7 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: none,
+    sameSite: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 1000,
   });

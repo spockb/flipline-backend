@@ -26,22 +26,22 @@ function issueSession(res, user) {
 
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, name } = req.body ?? {};
-    if (!email || !password || !name)
+    let { email, password, name } = req.body || {};
+    if (!email || !password)
       return res.status(400).json({ error: "Missing fields" });
+    email = String(email).toLowerCase().trim();
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing)
       return res.status(409).json({ error: "Email already in use" });
 
     const passwordHash = await bcrypt.hash(password, 12);
-
     const user = await prisma.user.create({
       data: { email, passwordHash, name, role: "MEMBER" },
       select: { id: true, email: true, role: true, name: true },
     });
 
-    await issueSession(res, user);
+    issueSession(res, user);
     return res.status(201).json(user);
   } catch (e) {
     console.error(e);

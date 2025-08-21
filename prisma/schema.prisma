@@ -7,47 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  MEMBER
-}
-
-// User model — stores login credentials and role
 model User {
   id           Int      @id @default(autoincrement())
   email        String   @unique
   passwordHash String
+  name         String?  
   role         Role     @default(MEMBER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
+
 model Property {
-  // Core identity
-  id             Int      @id @default(autoincrement())
-  title          String
-
-  // Location
-  address        String   @unique
-  city           String
-  state          String
-
-  // Physical attributes
-  yearBuilt      Int
-  squareFootage  Int
-  lotSize        Float
-  bedrooms       Int
-  bathrooms      Float
-
-  // Financials
-  cost           Int
-  valuedAt       Int
-
-  // Description/media
-  bio            String
-  images         String[]
-
-  // Metadata
-  createdAt      DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  title         String
+  address       String   @unique
+  city          String
+  state         String
+  yearBuilt     Int
+  squareFootage Int
+  lotSize       Float
+  bedrooms      Int
+  bathrooms     Float
+  cost          Int
+  valuedAt      Int
+  bio           String
+  images        String[]
+  createdAt     DateTime @default(now())
 }
 
+enum Role {
+  ADMIN
+  MEMBER
+}

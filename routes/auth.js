@@ -8,16 +8,7 @@ const router = express.Router();
 
 const COOKIE_NAME = process.env.COOKIE_NAME;
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-  const validPassword = await bcrypt.compare(password, user.passwordHash);
-  if (!validPassword)
-    return res.status(401).json({ error: "Invalid credentials" });
-
+function issueSession(res, user) {
   const token = jwt.sign(
     { id: user.id, role: user.role },
     process.env.JWT_SECRET,
@@ -30,8 +21,51 @@ router.post("/login", async (req, res) => {
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 1000,
   });
+  return token;
+}
 
-  res.json({ message: "Login successful" });
+router.post("/signup", async (req, res) => {
+  try {
+    let { email, password, name } = req.body || {};
+    if (!email || !password)
+      return res.status(400).json({ error: "Missing fields" });
+    email = String(email).toLowerCase().trim();
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing)
+      return res.status(409).json({ error: "Email already in use" });
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { email, passwordHash, name, role: "MEMBER" },
+      select: { id: true, email: true, role: true, name: true },
+    });
+
+    issueSession(res, user);
+    return res.status(201).json(user);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Signup failed" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    const validPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!validPassword)
+      return res.status(401).json({ error: "Invalid credentials" });
+
+    issueSession(res, { id: user.id, role: user.role });
+    return res.json({ message: "Login successful" });
+  } catch (err) {
+    console.error(err);
+    return res.status((500).json({ error: "Login failed" }));
+  }
 });
 
 router.get("/me", async (req, res) => {
@@ -43,7 +77,7 @@ router.get("/me", async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email: true, role: true, name: true },
     });
 
     res.json(user);

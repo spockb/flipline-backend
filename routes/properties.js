@@ -15,20 +15,19 @@ router.get("/", async (req, res) => {
 });
 
 function coercePayload(body) {
-  // Destructure with defaults to avoid undefined crashes
   const {
-    title = "",
-    address = "",
-    city = "",
-    state = "",
-    yearBuilt = "",
-    squareFootage = "",
-    lotSize = "",
-    bedrooms = "",
-    bathrooms = "",
-    cost = "",
-    valuedAt = "",
-    bio = "",
+    title = "Default Title",
+    address = "123 Default",
+    city = "Default",
+    state = "XX",
+    yearBuilt = "9999",
+    squareFootage = "0",
+    lotSize = "0",
+    bedrooms = "0",
+    bathrooms = "0",
+    cost = "0",
+    valuedAt = "0",
+    bio = "Default bio.",
     images = [],
   } = body;
 
@@ -123,6 +122,7 @@ router.post("/", async (req, res) => {
         valuedAt: data.valuedAt,
         bio: data.bio,
         images: data.images,
+        coverIndex: 0,
       },
     });
 

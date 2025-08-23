@@ -5,16 +5,6 @@ import { requireAuth, requireRole } from "../requireAuth.js";
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", async (req, res) => {
-  try {
-    const properties = await prisma.property.findMany();
-    res.json(properties);
-  } catch (error) {
-    console.error("Error fetching properties:", error);
-    res.status(500).json({ error: "Failed to load properties" });
-  }
-});
-
 function coercePayload(body) {
   const {
     title = "Default Title",
@@ -84,6 +74,16 @@ function validatePayload(data) {
 
   return errors;
 }
+
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const properties = await prisma.property.findMany();
+    res.json(properties);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    res.status(500).json({ error: "Failed to load properties" });
+  }
+});
 
 router.get("/:id", requireAuth, async (req, res) => {
   const id = Number(req.params.id);

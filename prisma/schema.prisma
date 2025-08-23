@@ -15,6 +15,8 @@ model User {
   role         Role     @default(MEMBER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  favorites Favorite[]
 }
 
 
@@ -37,7 +39,22 @@ model Property {
   coverIndex    Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+
+  favorites Favorite[]
 }
+
+model Favorite {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  propertyId Int
+  createdAt  DateTime  @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+}
+
 
 enum Role {
   ADMIN

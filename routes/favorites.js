@@ -1,27 +1,11 @@
 import { Router } from "express";
-import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import { requireAuth } from "../requireAuth.js";
 
 const router = Router();
 const prisma = new PrismaClient();
-const COOKIE_NAME = process.env.COOKIE_NAME;
 
-function getUserFromReq(req) {
-  const token = req.cookies?.[COOKIE_NAME];
-
-  if (!token) return null;
-
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET);
-  } catch {
-    return null;
-  }
-}
-
-router.post("/favorites/:propertyId", async (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: "Not authenticated" });
-
+router.post("/favorites/:propertyId", requireAuth, async (req, res) => {
   const property = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
@@ -42,10 +26,7 @@ router.post("/favorites/:propertyId", async (req, res) => {
   }
 });
 
-router.delete("/favorites/:propertyId", async (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: "Not authenticated" });
-
+router.delete("/favorites/:propertyId", requireAuth, async (req, res) => {
   const property = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
@@ -62,10 +43,7 @@ router.delete("/favorites/:propertyId", async (req, res) => {
   }
 });
 
-router.get("/favorites", async (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: "Not authenticated" });
-
+router.get("/favorites", requireAuth, async (req, res) => {
   try {
     const favs = await prisma.favorite.findMany({
       where: { userId: user.id },

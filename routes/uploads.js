@@ -6,7 +6,7 @@ import {
   HeadBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { requireAuth, requireRole } from "../requireAuth";
+import { requireAuth, requireRole } from "../requireAuth.js";
 
 const router = Router();
 

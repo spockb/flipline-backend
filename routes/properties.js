@@ -75,7 +75,7 @@ function validatePayload(data) {
   return errors;
 }
 
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const properties = await prisma.property.findMany();
     res.json(properties);
@@ -85,7 +85,7 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:id", requireAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id))
     return res.status(400).json({ error: "Invalid ID" });

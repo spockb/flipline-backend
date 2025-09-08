@@ -5,7 +5,7 @@ import { requireAuth } from "../requireAuth.js";
 const router = Router();
 const prisma = new PrismaClient();
 
-router.post("/favorites/:propertyId", requireAuth, async (req, res) => {
+router.post("/:propertyId", requireAuth, async (req, res) => {
   const property = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
@@ -13,7 +13,7 @@ router.post("/favorites/:propertyId", requireAuth, async (req, res) => {
 
   try {
     const fav = await prisma.favorite.create({
-      data: { userId: user.id, propertyId },
+      data: { userId: req.user.id, propertyId },
       select: { id: true, propertyId: true, createdAt: true },
     });
     return res.status(201).json({ ok: true, favorite: fav });
@@ -26,7 +26,7 @@ router.post("/favorites/:propertyId", requireAuth, async (req, res) => {
   }
 });
 
-router.delete("/favorites/:propertyId", requireAuth, async (req, res) => {
+router.delete("/:propertyId", requireAuth, async (req, res) => {
   const property = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
@@ -34,7 +34,7 @@ router.delete("/favorites/:propertyId", requireAuth, async (req, res) => {
 
   try {
     const result = await prisma.favorite.deleteMany({
-      where: { userId: user.id, propertyId },
+      where: { userId: req.user.id, propertyId },
     });
     return res.json({ ok: true, removed: result.count > 0 });
   } catch (err) {
@@ -43,10 +43,10 @@ router.delete("/favorites/:propertyId", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/favorites", requireAuth, async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const favs = await prisma.favorite.findMany({
-      where: { userId: user.id },
+      where: { userId: req.user.id },
       orderBy: { createdAt: "desc" },
       include: {
         property: {

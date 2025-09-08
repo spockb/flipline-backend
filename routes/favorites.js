@@ -6,7 +6,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post("/:propertyId", requireAuth, async (req, res) => {
-  const property = Number(req.params.propertyId);
+  const propertyId = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
   }
@@ -27,7 +27,7 @@ router.post("/:propertyId", requireAuth, async (req, res) => {
 });
 
 router.delete("/:propertyId", requireAuth, async (req, res) => {
-  const property = Number(req.params.propertyId);
+  const propertyId = Number(req.params.propertyId);
   if (!Number.isFinite(propertyId)) {
     return res.status(400).json({ error: "Invalid property ID" });
   }

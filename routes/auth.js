@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import { requireAuth } from "../requireAuth.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -17,12 +18,17 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: true,
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    path: "/",
     maxAge: 60 * 60 * 1000,
   });
   return token;
 }
+
+router.get("/whoami", requireAuth, (req, res) => {
+  res.json({ ok: true, user: req.user });
+});
 
 router.post("/signup", async (req, res) => {
   try {

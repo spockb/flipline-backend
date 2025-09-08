@@ -6,6 +6,7 @@ import {
   HeadBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { requireAuth, requireRole } from "../requireAuth.js";
 
 const router = Router();
 
@@ -19,7 +20,7 @@ const s3 = new S3Client({
   forcePathStyle: true,
 });
 
-router.post("/uploads/presign", async (req, res) => {
+router.post("/presign", requireAuth, requireRole("ADMIN"), async (req, res) => {
   try {
     const { contentType, ext } = req.body || {};
     const allowed = ["image/jpeg", "image/png", "image/webp", "image/avif"];

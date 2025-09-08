@@ -1,18 +1,9 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
+import { requireAuth, requireRole } from "../requireAuth.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
-
-router.get("/", async (req, res) => {
-  try {
-    const properties = await prisma.property.findMany();
-    res.json(properties);
-  } catch (error) {
-    console.error("Error fetching properties:", error);
-    res.status(500).json({ error: "Failed to load properties" });
-  }
-});
 
 function coercePayload(body) {
   const {
@@ -84,7 +75,17 @@ function validatePayload(data) {
   return errors;
 }
 
-router.get("/:id", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const properties = await prisma.property.findMany();
+    res.json(properties);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    res.status(500).json({ error: "Failed to load properties" });
+  }
+});
+
+router.get("/:id", requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id))
     return res.status(400).json({ error: "Invalid ID" });
@@ -101,7 +102,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, requireRole("ADMIN"), async (req, res) => {
   const data = coercePayload(req.body);
   const errors = validatePayload(data);
   if (errors.length) return res.status(400).json({ errors });
@@ -133,7 +134,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id))
     return res.status(400).json({ error: "Invalid ID" });
@@ -171,7 +172,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id))
     return res.status(400).json({ error: "Invalid ID" });

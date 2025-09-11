@@ -1,7 +1,11 @@
 {
-  "name": "real-estate-site-backend",
+  "name": "flipline-portfolio-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "22.15.1"
+  },
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",

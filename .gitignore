@@ -1,5 +1,17 @@
+# dependencies
 node_modules
-# Keep environment variables out of version control
+
+# builds
+dist
+build
+
+# env
 .env
+.env.*.local
+.env.local
+
+# platform artifacts
+.vercel
+.railway
 
 /generated/prisma

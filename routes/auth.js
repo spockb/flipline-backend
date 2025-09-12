@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 const COOKIE_NAME = process.env.COOKIE_NAME;
+const isProd = process.env.NODE_ENV === "production";
 
 function issueSession(res, user) {
   const token = jwt.sign(
@@ -18,8 +19,8 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd,
     path: "/",
     maxAge: 60 * 60 * 1000,
   });

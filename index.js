@@ -43,8 +43,14 @@ app.get("/health", (req, res) => {
 });
 
 // Catch-all route for undefined endpoints
-app.use("*", (req, res) => {
+app.use("/*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
 });
 
 // Use Railway's PORT environment variable, fallback to 5000 for local dev

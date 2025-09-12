@@ -42,17 +42,6 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Catch-all route for undefined endpoints
-app.use("/*", (req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
-
 // Use Railway's PORT environment variable, fallback to 5000 for local dev
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";

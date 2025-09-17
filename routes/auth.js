@@ -93,7 +93,7 @@ router.get("/me", async (req, res) => {
   }
 });
 
-router.post("/logout", (_req, res) => {
+router.post("/logout", (req, res) => {
   res.clearCookie(COOKIE_NAME, {
     path: "/",
     sameSite: "none",

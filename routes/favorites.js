@@ -61,6 +61,7 @@ router.get("/", requireAuth, async (req, res) => {
         },
       },
     });
+    return res.json(favs);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Failed to load favorites" });

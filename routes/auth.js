@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 const COOKIE_NAME = process.env.COOKIE_NAME;
+const isProd = process.env.NODE_ENV === "production";
 
 function issueSession(res, user) {
   const token = jwt.sign(
@@ -71,7 +72,7 @@ router.post("/login", async (req, res) => {
     return res.json({ message: "Login successful" });
   } catch (err) {
     console.error(err);
-    return res.status((500).json({ error: "Login failed" }));
+    return res.status(500).json({ error: "Login failed" });
   }
 });
 

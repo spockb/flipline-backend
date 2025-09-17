@@ -19,10 +19,11 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: isProd ? "none" : "lax",
-    secure: isProd,
+    sameSite: "none",
+    secure: true,
     path: "/",
     maxAge: 60 * 60 * 1000,
+    domain: undefined,
   });
   return token;
 }
@@ -94,7 +95,13 @@ router.get("/me", async (req, res) => {
 });
 
 router.post("/logout", (_req, res) => {
-  res.clearCookie(COOKIE_NAME, { path: "/" });
+  res.clearCookie(COOKIE_NAME, {
+    path: "/",
+    sameSite: "none",
+    secure: true,
+    httpOnly: true,
+    domain: undefined,
+  });
   return res.json({ ok: true });
 });
 

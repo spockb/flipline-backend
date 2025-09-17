@@ -18,10 +18,11 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    secure: true,
     path: "/",
     maxAge: 60 * 60 * 1000,
+    domain: undefined,
   });
   return token;
 }

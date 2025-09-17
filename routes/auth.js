@@ -18,12 +18,12 @@ function issueSession(res, user) {
   );
 
   res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
     path: "/",
-    maxAge: 60 * 60 * 1000,
+    sameSite: "none",
+    secure: isProd,
+    httpOnly: true,
     domain: undefined,
+    maxAge: 60 * 60 * 1000,
   });
   return token;
 }
@@ -98,7 +98,7 @@ router.post("/logout", (req, res) => {
   res.clearCookie(COOKIE_NAME, {
     path: "/",
     sameSite: "none",
-    secure: true,
+    secure: isProd,
     httpOnly: true,
     domain: undefined,
   });

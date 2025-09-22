@@ -19,7 +19,7 @@ function issueSession(res, user) {
 
   res.cookie(COOKIE_NAME, token, {
     path: "/",
-    sameSite: "none",
+    sameSite: isProd ? "none" : "lax",
     secure: isProd,
     httpOnly: true,
     domain: undefined,
@@ -76,28 +76,28 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/me", async (req, res) => {
+router.get("/me", requireAuth, async (req, res) => {
   try {
-    const token = req.cookies[COOKIE_NAME];
-    if (!token) return res.status(401).json({ error: "Not authenticated" });
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: req.user.id },
       select: { id: true, email: true, role: true, name: true },
     });
 
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     res.json(user);
   } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 router.post("/logout", (req, res) => {
   res.clearCookie(COOKIE_NAME, {
     path: "/",
-    sameSite: "none",
+    sameSite: isProd ? "none" : "lax",
     secure: isProd,
     httpOnly: true,
     domain: undefined,

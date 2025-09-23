@@ -15,13 +15,19 @@ app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [process.env.FRONTEND_ORIGIN, "http://localhost:5173"];
+const allowedOrigins = [process.env.FRONTEND_ORIGIN, "http://127.0.0.1:5173"];
 
 const corsOptions = {
   origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
     console.log("CORS blocked origin:", origin);
+    console.log("Allowed origins:", allowedOrigins);
     return callback(new Error("Not allowed by CORS"), false);
   },
   credentials: true,
